@@ -3,6 +3,8 @@ package parser_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/adwd/monkey/ast"
 	"github.com/adwd/monkey/lexer"
 	"github.com/adwd/monkey/parser"
@@ -17,7 +19,7 @@ let foobar = 838383;
 	l := lexer.New(input)
 	p := parser.New(l)
 
-	program := p.PraseProgram()
+	program := p.ParseProgram()
 	checkParserErrors(t, p)
 	if program == nil {
 		t.Fatalf("ParseProgram() returned nil")
@@ -90,7 +92,7 @@ return 9933222;
 	l := lexer.New(input)
 	p := parser.New(l)
 
-	program := p.PraseProgram()
+	program := p.ParseProgram()
 	checkParserErrors(t, p)
 
 	if len(program.Statements) != 3 {
@@ -114,7 +116,7 @@ func TestIndentifierExpression(t *testing.T) {
 
 	l := lexer.New(input)
 	p := parser.New(l)
-	program := p.PraseProgram()
+	program := p.ParseProgram()
 	checkParserErrors(t, p)
 
 	if l := len(program.Statements); l != 1 {
@@ -136,4 +138,23 @@ func TestIndentifierExpression(t *testing.T) {
 	if ident.TokenLiteral() != "foobar" {
 		t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", ident.TokenLiteral())
 	}
+}
+
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "5;"
+
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	assert.Equal(t, 1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(t, ok, "program.Statement[0] should be ast.ExpressionStatement")
+
+	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+	assert.True(t, ok, "exp should be *ast.IntegerLiteral")
+	assert.Equal(t, int64(5), literal.Value)
+	assert.Equal(t, "5", literal.TokenLiteral())
 }
