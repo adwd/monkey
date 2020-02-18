@@ -18,6 +18,7 @@ const (
 
 	INTEGER_OBJ  = "INTEGER"
 	BOOLEAN_OBJ  = "BOOLEAN"
+	STRING_OBJ   = "STRING"
 	FUNCTION_OBJ = "FUNCTION"
 )
 
@@ -83,3 +84,10 @@ func (f *Function) Inspect() string {
 
 	return out.String()
 }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING_OBJ }
+func (s *String) Inspect() string  { return s.Value }
